@@ -52,12 +52,12 @@ namespace StpViewer
 
             GlobalInstance.EventListener.OnChangeCursorEvent += OnChangeCursor;
             GlobalInstance.EventListener.OnSelectElementEvent += OnSelectElement;
-            //GlobalInstance.EventListener.OnSelectElementEvent += OnSelectionChanged;
+            GlobalInstance.EventListener.OnSelectElementEvent += OnSelectionChanged;
 
-            //System.Timers.Timer t = new System.Timers.Timer(10);//实例化Timer类，设置时间间隔
-            //t.Elapsed += new System.Timers.ElapsedEventHandler(Update);//到达时间的时候执行事件
-            //t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)
-            //t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件
+            System.Timers.Timer t = new System.Timers.Timer(10);//实例化Timer类，设置时间间隔
+            t.Elapsed += new System.Timers.ElapsedEventHandler(Update);//到达时间的时候执行事件
+            t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)
+            t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件
         }
 
         private void OnSelectElement(SelectionChangeArgs args)
@@ -79,6 +79,7 @@ namespace StpViewer
                 }
             }
         }
+
         private bool m_PickPoint = false;
         private void OnRenderWindow_MouseClick(object sender, MouseEventArgs e)
         {
@@ -149,20 +150,19 @@ namespace StpViewer
                         if (_wabDataFroBotServerTransfer.msgOutQueue.Count > 0)
                         {
                             StartUpdateSimModel();
-                            //_wabDataFroBotServerTransfer.WebSocket.Send(_wabDataFroBotServerTransfer.msgOutQueue.Dequeue());
                             _wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd(_wabDataFroBotServerTransfer.msgOutQueue.Dequeue()));
-
+                            
                         }
-                        //_wabDataFroBotServerTransfer.WebSocket.Send("1&1&0&0&0&Read --check_none");
+                        
                         _wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("1&1&0&0&0&Read --check_none"));
-                        Console.WriteLine("send Read");
+                        //Console.WriteLine("send Read");
                     }
                     
-
                     while (_wabDataFroBotServerTransfer.BinQueue.Count > 0)
                     {
                         mess.byteFromBotServer.Enqueue(_wabDataFroBotServerTransfer.BinQueue.Dequeue());
                     }
+
                     while (mess.byteFromBotServer.Count > 0)
                     {
                         if (step == null)
@@ -171,11 +171,14 @@ namespace StpViewer
                         }
                         // List<float> step = new List<float>();
                         //step.Clear();
-                        step=step.Concat(mess.ProcessBiteQue(any_robot.partList.Count)).ToList();
+                        List<float> tempList = mess.ProcessBiteQue(any_robot.partList.Count);
+                        if (tempList!=null)
+                        {
+                            step = step.Concat(tempList).ToList();
+                        }
+                        
                         //Debug.Log(step)
                         //Debug.Log();
-
-                        
                     }
                     if (step != null && step.Count > any_robot.partList.Count*7-1)
                     {
@@ -197,6 +200,7 @@ namespace StpViewer
         }
         private static byte[] OperateBotCmd(string str)
         {
+            Console.WriteLine("bot cmd:" + str);
             string[] strArray = str.Split(new char[] { '&' });
             if (strArray.Length > 2)
             {
@@ -248,21 +252,14 @@ namespace StpViewer
         public void StartUpdateSimModel()
         {
             ifUpDateSimModelFromWebSocket = true;
-            if (_wabDataFroBotServerTransfer == null|| !_wabDataFroBotServerTransfer.isOpen)
+            if (_wabDataFroBotServerTransfer == null)
             {
+                
                 string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
                 _wabDataFroBotServerTransfer = new WebData(url);
                 _wabDataFroBotServerTransfer.OpenWebSocket();
             }
-
-            //_wabDataFroBotServerTransfer = new WebData("ws://120.27.231.59:1822");
-            if (_wabDataFroBotServerTransfer == null)
-            {
-                
-            }
-
-            //botCmd = "0&1&0&0&0&" + GameObject.Find("InputField").GetComponent<UnityEngine.UI.InputField>().text + " \0";
-            //botCmdSend = false;
+           
         }
 
         public void MotionWithPQ(List<float> pqList)
@@ -331,7 +328,7 @@ namespace StpViewer
             {
 
                 any_robot.LoadRobot_Aris(dlg.FileName, true);
-                int a = 0;
+                
             }
             ShowAnyRobot();
         }
@@ -339,8 +336,8 @@ namespace StpViewer
         private void ShowAnyRobot()
         {
 
-            this.treeViewStp.Nodes.Clear();
-            this.renderView.ClearScene();
+            //this.treeViewStp.Nodes.Clear();
+            //this.renderView.ClearScene();
             for (int part_i = 0; part_i < any_robot.partList.Count; part_i++)
             {
                 GroupSceneNode onePartNode = new GroupSceneNode();
@@ -384,25 +381,24 @@ namespace StpViewer
             }
         }
 
-        private async void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "STEP File(*.stp;*.step)|*.stp;*.step|All Files(*.*)|*.*";
             if (DialogResult.OK == dlg.ShowDialog())
             {
-                //this.treeViewStp.Nodes.Clear();
-                //this.renderView.ClearScene();
                 TopoShape a = GlobalInstance.BrepTools.LoadFile(new AnyCAD.Platform.Path(dlg.FileName));
                 node1 = renderView.ShowGeometry(a, 0);
                 node1.SetPickable(true);
-                
-                robot_node.AddNode(node1);
-                renderView.SceneManager.AddNode(robot_node);
-                renderView.SceneManager.RemoveNode(node1);
+                float[] oneGeoPq = new float[7] { 0.0f, 0.3f, 0.1f, 0, 0, 0, 1 };
+                MatrixBuilder mb = new MatrixBuilder();
+                Matrix4 mat1 = mb.Multiply(QuaternionToTransform(oneGeoPq),mb.MakeRotation(-90,new Vector3(1,0,0)));
+                node1.SetTransform(mat1);
             }
-
             renderView.SetPickMode((int)(EnumPickMode.RF_Default));
-            //renderView.SetPickMode((int)(EnumPickMode.RF_Vertex));
+
+
+            ////renderView.SetPickMode((int)(EnumPickMode.RF_Vertex));
             //OpenFileDialog dlg = new OpenFileDialog();
             //dlg.Filter = "STEP (*.stp;*.step)|*.stp;*.step|All Files(*.*)|*.*";
 
@@ -419,6 +415,253 @@ namespace StpViewer
             //renderView.RequestDraw(EnumRenderHint.RH_LoadScene);
         }
 
+
+        private void pickToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool res = renderView.ExecuteCommand("Pick");
+        }
+
+        List<double[]> pathPtList = new List<double[]>();
+        List<double[]> pathPqList = new List<double[]>();
+        private void queryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SelectedShapeQuery context = new SelectedShapeQuery();
+            renderView.QuerySelection(context);
+            TopoShape subShape = context.GetSubGeometry();
+            SceneNode topoNode = context.GetSubNode();
+
+
+            if (subShape != null)
+            {
+                Console.WriteLine(subShape.GetShapeType());
+            }
+
+            Matrix4 shapeTransform = topoNode.GetTransform();
+            //surface
+            GeomSurface surface = new GeomSurface();
+            if (surface.Initialize(subShape))
+            {
+                List<Vector3> ptVecList = new List<Vector3>();
+                List<Vector3> norVecList = new List<Vector3>();
+                Console.Write("surface");
+                //double firstU = surface.FirstUParameter();
+                //double lastU = surface.LastUParameter();
+                //double firstV = surface.FirstVParameter();
+                //double lastV = surface.LastVParameter();
+                double firstU = surface.FirstUParameter();
+                double lastU = surface.LastUParameter();
+                double firstV = surface.FirstVParameter();
+                double lastV = surface.LastVParameter();
+                double offSetU = lastU - firstU;
+                double offSetV = lastV - firstV;
+
+                double stepU = 0.010;
+                double stepV = 10;
+                int stepNoU = (int)(offSetU / stepU);
+                int stepNoV = (int)(offSetV / stepV);
+                for (int v_i = 0; v_i < stepNoV; v_i++)
+                {
+                    for (int u_i = 0; u_i < stepNoU; u_i++)
+                    {
+                        double tempV = firstV + stepV * v_i;
+                        double tempU = firstU + stepU * (v_i % 2 == 0 ? u_i : stepNoU - u_i);
+                        //double tempV = firstV + stepV * (u_i % 2 == 0 ? v_i : stepNoV - v_i);
+                        Vector3 ptVec_1 = surface.Value(tempU, tempV);
+                        Vector3 ptVec = shapeTransform.Transform(ptVec_1);
+                        Vector3 normalVec_1 = surface.GetNormal(tempU, tempV);
+                        //Vector3 normalVec =shapeTransform.Transform(normalVec_1);//matrix3  3*3
+                        Vector3 normalVec = RotateDirVector(shapeTransform, normalVec_1);
+                        ptVecList.Add(ptVec);
+                        norVecList.Add(normalVec);
+                        pathPqList.Add(QuaternionFromTo(new Vector3(-1, 0, 0), normalVec, ptVec));
+
+                        //LineNode tempLineNode = new LineNode();
+                        //LineStyle lineStyle = new LineStyle();
+                        //lineStyle.SetPatternStyle((int)EnumLinePattern.LP_DashedLine);
+                        //lineStyle.SetColor(100, 0, 100);
+                        //tempLineNode.SetLineStyle(lineStyle);
+                        //tempLineNode.Set(ptVec, ptVec + normalVec);
+                        //tempLineNode.SetVisible(true);
+                        //renderView.SceneManager.AddNode(tempLineNode);
+                        //renderView.RequestDraw();
+                    }
+                }
+
+                //for (int u_i = 0; u_i < stepNoU; u_i++)
+                //{
+                //    for (int v_i = 0; v_i < stepNoV-0; v_i++)
+                //    {
+
+                //        double tempU = firstU + stepU * u_i;
+                //        double tempV = firstV + stepV * (u_i % 2 == 0 ? v_i : stepNoV - v_i);
+
+                //        Vector3 ptVec =shapeTransform.Transform(surface.Value(tempU,tempV ));
+                //        Vector3 normalVec = surface.GetNormal(tempU,tempV);
+                //        ptVecList.Add(ptVec);
+                //        norVecList.Add(normalVec);
+                //        pathPqList.Add(QuaternionFromTo(new Vector3(-1, 0, 0), normalVec, ptVec));
+                //    }
+                //}
+                int a = 0;
+            }
+            //curve
+            GeomCurve curve = new GeomCurve();
+            if (curve.Initialize(subShape))
+            {
+                Vector3 startPt = shapeTransform.Transform(curve.D0(curve.FirstParameter()));
+                //Vector3 startPt_ = shapeTransform.Transform(startPt);
+                Vector3 pt1 = curve.GetStartPoint();
+                Vector3 endPt = shapeTransform.Transform(curve.D0(curve.LastParameter()));
+                Vector3 pt2 = curve.GetEndPoint();
+                switch ((EnumCurveType)curve.GetCurveType())
+                {
+                    case EnumCurveType.CurveType_OtherCurve:
+                        Console.Write("other");
+                        break;
+                    case EnumCurveType.CurveType_BSplineCurve:
+                        break;
+                    case EnumCurveType.CurveType_BezierCurve:
+                        break;
+                    case EnumCurveType.CurveType_Parabola:
+                        break;
+                    case EnumCurveType.CurveType_Hyperbola:
+                        break;
+                    case EnumCurveType.CurveType_Ellipse:
+                        break;
+                    case EnumCurveType.CurveType_Circle:
+                        Console.Write("Circle");
+                        break;
+                    case EnumCurveType.CurveType_Line:
+                        Console.Write("Line");
+
+                        //path
+                        double[] startPt_ = new double[3] { startPt.X, startPt.Y, startPt.Z };
+                        double[] endPt_ = new double[3] { endPt.X, endPt.Y, endPt.Z };
+                        Path_U.Interpolation(startPt_, endPt_, 0.01, ref pathPtList);
+                        //show pick result
+                        LineNode tempLineNode = new LineNode();
+                        LineStyle lineStyle = new LineStyle();
+                        lineStyle.SetPatternStyle((int)EnumLinePattern.LP_DashedLine);
+                        lineStyle.SetColor(100, 0, 100);
+                        tempLineNode.SetLineStyle(lineStyle);
+                        tempLineNode.Set(new Vector3(startPt.X + 0.1, startPt.Y + 10, startPt.Z + 0.1), endPt);
+                        tempLineNode.SetVisible(true);
+                        renderView.SceneManager.AddNode(tempLineNode);
+                        renderView.RequestDraw();
+                        break;
+                    default:
+                        break;
+                }
+
+
+
+                ElementId id = context.GetNodeId();
+                MessageBox.Show(id.AsInt().ToString());
+                //...
+            }
+
+        }
+
+        private void CMD_textBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CMD_textBox_Leave(object sender, EventArgs e)
+        {
+            string cmdStr = this.CMD_textBox.Text;
+            EnqueueMessage("0&1&0&0&0&" + cmdStr + "\n");
+            //_wabDataFroBotServerTransfer.msgOutQueue.Enqueue();
+            //Console.WriteLine(_wabDataFroBotServerTransfer.msgOutQueue.Count+":"+ cmdStr);
+
+        }
+
+        private void EnqueueMessage(string mess)
+        {
+            if (_wabDataFroBotServerTransfer == null)
+            {
+                toolStripStatusLabel1.Text = "Server Not Connected!";
+                statusStrip1.Refresh();
+            }
+            else
+            {
+                _wabDataFroBotServerTransfer.msgOutQueue.Enqueue(mess);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //_wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("0&1&0&0&0&" + "moveJI --pq={3.656989e-001,-2.955130e-002,3.860146e-001,3.814761e-001,-2.151443e-002,-8.130945e-002,9.205443e-001} -v={1,1,1,1,1,1} -a={1,1,1,1,1,1} -d={1,1,1,1,1,1} --not_check_vel"));
+            //_wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("0&1&0&0&0&" + "moveJI --pq={2.217722e-001,-2.313713e-001,2.584152e-001,3.534221e-001,-1.462628e-001,-3.536169e-001,8.536130e-001} -v={1,1,1,1,1,1} -a={1,1,1,1,1,1} -d={1,1,1,1,1,1} --not_check_vel"));
+            //_wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("0&1&0&0&0&" + "moveJI --pq={2.255298e-001,-2.351491e-001,2.251460e-001,3.535753e-001,-1.464193e-001,-3.535308e-001,8.535584e-001}  --not_check_vel"));
+            //_wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("0&1&0&0&0&" + "moveJI --pq={2.806871e-001,-2.902937e-001,2.251375e-001,3.535740e-001,-1.464201e-001,-3.535329e-001,8.535579e-001}  --not_check_vel"));
+            //_wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("0&1&0&0&0&" + "moveJI --pq={3.656989e-001,-2.955130e-002,3.860146e-001,3.814761e-001,-2.151443e-002,-8.130945e-002,9.205443e-001} -v={1,1,1,1,1,1} -a={1,1,1,1,1,1} -d={1,1,1,1,1,1}  --not_check_vel"));
+
+
+            foreach (double[] pt in pathPtList)
+            {
+
+                double[] newPQ = new double[7] { pt[0] / 1000, pt[1] / 1000, pt[2] / 1000, 0, 0, 0, 1 };
+                string botCmd = "0&1&0&0&0&" + "moveJI --pq={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
+                EnqueueMessage(botCmd);
+                //_wabDataFroBotServerTransfer.msgOutQueue.Enqueue(botCmd);
+
+            }
+            foreach (double[] newPQ in pathPqList)
+            {
+                string botCmd = "0&1&0&0&0&" + "moveJI --pq={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
+                object syncObj = new object();
+                lock (syncObj)
+                {
+                    EnqueueMessage(botCmd);
+                    //_wabDataFroBotServerTransfer.msgOutQueue.Enqueue(botCmd);
+                }
+
+            }
+        }
+
+        private void moveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            renderView.ExecuteCommand("MoveNode");
+        }
+
+        Vector3 RotateDirVector(Matrix4 matrix, Vector3 direction)
+        {
+            Vector3 newDir = new Vector3();
+            newDir.X = matrix.m[0, 0] * direction.X + matrix.m[0, 1] * direction.Y + matrix.m[0, 2] * direction.Z;
+            newDir.Y = matrix.m[1, 0] * direction.X + matrix.m[1, 1] * direction.Y + matrix.m[1, 2] * direction.Z;
+            newDir.Z = matrix.m[2, 0] * direction.X + matrix.m[2, 1] * direction.Y + matrix.m[2, 2] * direction.Z;
+            return newDir;
+        }
+
+        /// <summary>
+        /// vecFrom rotate to vecTo 
+        /// </summary>
+        /// <param name="vecFrom"></param>
+        /// <param name="vecTo"></param>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        double[] QuaternionFromTo(Vector3 vecFrom, Vector3 vecTo,Vector3 pt)
+        {
+            double length_1 = vecFrom.Normalize();
+            double length_2 = vecTo.Normalize();
+            Vector3 half = (vecFrom + vecTo);
+            half.Normalize();
+            if ((vecFrom+vecTo).Length()==0)
+            {
+                return new double[7] {pt.X,pt.Y,pt.Z, 0, 0, 0, 1 };
+            }
+            else
+            {
+                double q1 = vecFrom.X * half.X + vecFrom.Y * half.Y + vecFrom.Z * half.Z;
+                Vector3 cross = vecFrom.CrossProduct(half);
+                return new double[7] { pt.X/1000, pt.Y/1000, pt.Z/1000, cross.X, cross.Y, cross.Z, q1 };
+            }
+        }
+        float[] TransformToQuaternion(float[] transform)
+        {
+            return null;
+        }
         Matrix4 QuaternionToTransform(float[] pq)
         {
 
@@ -448,9 +691,7 @@ namespace StpViewer
             rot[13] = 0;
             rot[14] = 0;
             rot[15] = 1;
-
-
-
+            
             Matrix4 trf = new Matrix4();
             for (int i = 0; i < 4; i++)
             {
@@ -458,7 +699,6 @@ namespace StpViewer
                 {
                     trf.m[i, j] = rot[i * 4 + j];
                 }
-
             }
             //Matrix4 trf_1 = GlobalInstance.MatrixBuilder.MakeTranslate(new Vector3(pq[0], pq[1], pq[2]));
             //return GlobalInstance.MatrixBuilder.Multiply(trf, trf_1);
@@ -548,77 +788,6 @@ namespace StpViewer
 
         }
 
-        private void pickToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            bool res= renderView.ExecuteCommand("Pick");
-        }
-
-        private void queryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SelectedShapeQuery context = new SelectedShapeQuery();
-            renderView.QuerySelection(context);
-            TopoShape subShape = context.GetSubGeometry();
-            if (subShape!=null)
-            {
-                Console.WriteLine(subShape.GetShapeType());
-            }
-            
-            //surface
-            GeomSurface surface = new GeomSurface();
-            if (surface.Initialize(subShape))
-            {
-                Console.Write("surface");
-            }
-            //curve
-            GeomCurve curve = new GeomCurve();
-            if (curve.Initialize(subShape))
-            {
-                Vector3 startPt = curve.D0(curve.FirstParameter());
-                Vector3 pt1 = curve.GetStartPoint();
-                Vector3 endPt = curve.D0(curve.LastParameter());
-                Vector3 pt2 = curve.GetEndPoint();
-                switch ((EnumCurveType)curve.GetCurveType())
-                {
-                    case EnumCurveType.CurveType_OtherCurve:
-                        Console.Write("other");
-                        break;
-                    case EnumCurveType.CurveType_BSplineCurve:
-                        break;
-                    case EnumCurveType.CurveType_BezierCurve:
-                        break;
-                    case EnumCurveType.CurveType_Parabola:
-                        break;
-                    case EnumCurveType.CurveType_Hyperbola:
-                        break;
-                    case EnumCurveType.CurveType_Ellipse:
-                        break;
-                    case EnumCurveType.CurveType_Circle:
-                        Console.Write("Circle");
-                        break;
-                    case EnumCurveType.CurveType_Line:
-                        Console.Write("Line");
-                        LineNode tempLineNode = new LineNode();
-                        LineStyle lineStyle = new LineStyle();
-                        lineStyle.SetPatternStyle((int)EnumLinePattern.LP_DashedLine);
-                        lineStyle.SetColor(100, 0, 100);
-                        tempLineNode.SetLineStyle(lineStyle);
-                        tempLineNode.Set(new Vector3(startPt.X + 0.1, startPt.Y + 10, startPt.Z + 0.1), endPt);
-                        tempLineNode.SetVisible(true);
-                        renderView.SceneManager.AddNode(tempLineNode);
-                        renderView.RequestDraw();
-                        break;
-                    default:
-                        break;
-                }
-
-
-
-                ElementId id = context.GetNodeId();
-                MessageBox.Show(id.AsInt().ToString());
-                //...
-            }
-
-        }
     }
 
 

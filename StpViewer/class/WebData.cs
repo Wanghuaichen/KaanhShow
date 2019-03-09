@@ -11,35 +11,20 @@ public class WebData
     /// The WebSocket address to connect  
     /// </summary>  
     public string address = "ws://127.0.0.1:1822";
-
-    /// <summary>  
-    /// Default text to send  
-    /// </summary>  
-    private string _msgToSend = "Hello World!";
-
-    /// <summary>  
-    /// Debug text to draw on the gui  
-    /// </summary>  
-    private string _text = string.Empty;
-
     /// <summary>  
     /// Saved WebSocket instance  
     /// </summary>  
     public WebSocket _webSocket;
 
-    //private Queue<DataInfo> _msgQueue = new Queue<DataInfo>();
+    
     private Queue<string> _msgQueue = new Queue<string>();
     private Queue<byte[]> _binQueue = new Queue<byte[]>();
     //public Queue<DataInfo> MsgQueue { get { return _msgQueue; } }
     public Queue<string> MsgQueue { get { return _msgQueue; } }
     public Queue<byte[]> BinQueue { get { return _binQueue; } }
     public Queue<string> msgOutQueue = new Queue<string>();
-    public WebSocket WebSocket { get { return _webSocket; } }
-    public string Address { get { return address; } }
-    public bool isOpen { get { return _webSocket!=null &&_webSocket.IsAlive; } }
-    public string Text { get { return _text; } }
     
-    public List<float> pqDataFromBotServer = new List<float>();
+   
     public WebData(string url)
     {
         address = url;
@@ -81,6 +66,29 @@ public class WebData
         }
     }
 
-    
+    public void Send(string mess)
+    {
+        if (_webSocket!=null)
+        {
+            switch (_webSocket.ReadyState)
+            {
+                case WebSocketState.Connecting:
+                    _webSocket.Connect();
+                    break;
+                case WebSocketState.Open:
+                    _webSocket.Send(mess);
+                    break;
+                case WebSocketState.Closing:
+                    _webSocket.Connect();
+                    break;
+                case WebSocketState.Closed:
+                    _webSocket.Connect();
+                    break;
+                default:
+                    break;
+            }
+        }
+       
+    }
 }
 

@@ -8,7 +8,18 @@ namespace RobotView
 {
     public class Path_U
     {
-        public void Interpolation(Vector3_U pos1, Vector3_U pos2, double lineStep, ref List<Vector3_U> vecArray)//直线插值
+        public static void Interpolation(double[] pos1,double[] pos2,double lineStep,ref List<double[]> vecArray)
+        {
+            Vector3_U pos1_ = new RobotView.Vector3_U(pos1[0], pos1[1], pos1[2]);
+            Vector3_U pos2_ = new Vector3_U(pos2[0], pos2[1], pos2[2]);
+            List<Vector3_U> vecArray_ = new List<RobotView.Vector3_U>();
+            Interpolation(pos1_, pos2_, lineStep, ref vecArray_);
+            for (int i = 0; i < vecArray_.Count; i++)
+            {
+                vecArray.Add(new double[] { vecArray_[i].x, vecArray_[i].y, vecArray_[i].z });
+            }
+        }
+        public static void Interpolation(Vector3_U pos1, Vector3_U pos2, double lineStep, ref List<Vector3_U> vecArray)//直线插值
         {
             double dis = lineStep;//插值间距
             Vector3_U direction = new Vector3_U(pos2.x - pos1.x, pos2.y - pos1.y, pos2.z - pos1.z);
