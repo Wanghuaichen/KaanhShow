@@ -29,7 +29,8 @@ namespace StpViewer
         private WebData _wabDataFroBotServerTransfer;
         private List<float> step = new List<float>();
         private MessageFromBotServer mess = new MessageFromBotServer();
-        private string webSocketSerAddress = "127.0.0.1";
+        //private string webSocketSerAddress = "127.0.0.1";
+        private string webSocketSerAddress = "192.168.1.10";
         // private string webSocketSerAddress = "10.10.10.126";
         //private string webSocketSerAddress = "10.10.10.133";
         // private string webSocketSerAddress = "10.10.10.126";
@@ -154,7 +155,7 @@ namespace StpViewer
                             
                         }
                         
-                        _wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("1&1&0&0&0&Read --check_none"));
+                        _wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("1&1&0&0&0&get_part_pq"));
                         //Console.WriteLine("send Read");
                     }
                     
@@ -278,6 +279,7 @@ namespace StpViewer
             }
             //motionFinished = true;
         }
+
         public void MotionWithPQ(float[] pqList)
         {
             if (pqList.Length > 6)
@@ -294,6 +296,7 @@ namespace StpViewer
             }
             motionFinished = true;
         }
+
         void OnSelectionChanged(SelectionChangeArgs args)
         {
 
@@ -390,7 +393,8 @@ namespace StpViewer
                 TopoShape a = GlobalInstance.BrepTools.LoadFile(new AnyCAD.Platform.Path(dlg.FileName));
                 node1 = renderView.ShowGeometry(a, 0);
                 node1.SetPickable(true);
-                float[] oneGeoPq = new float[7] { 0.0f, 0.3f, 0.1f, 0, 0, 0, 1 };
+                //float[] oneGeoPq = new float[7] { 0.03f, 0.43f, 0.07f, 0, 0, 0, 1 };
+                float[] oneGeoPq = new float[7] { 0.03f, 0.46f, -0.005f, 0, 0, 0, 1 };
                 MatrixBuilder mb = new MatrixBuilder();
                 Matrix4 mat1 = mb.Multiply(QuaternionToTransform(oneGeoPq),mb.MakeRotation(-90,new Vector3(1,0,0)));
                 node1.SetTransform(mat1);
@@ -455,11 +459,11 @@ namespace StpViewer
                 double offSetU = lastU - firstU;
                 double offSetV = lastV - firstV;
 
-                double stepU = 0.010;
+                double stepU = 0.10;
                 double stepV = 10;
                 int stepNoU = (int)(offSetU / stepU);
                 int stepNoV = (int)(offSetV / stepV);
-                for (int v_i = 0; v_i < stepNoV; v_i++)
+                for (int v_i = 3; v_i < stepNoV-3; v_i++)
                 {
                     for (int u_i = 0; u_i < stepNoU; u_i++)
                     {
@@ -598,26 +602,49 @@ namespace StpViewer
             //_wabDataFroBotServerTransfer._webSocket.Send(OperateBotCmd("0&1&0&0&0&" + "moveJI --pq={3.656989e-001,-2.955130e-002,3.860146e-001,3.814761e-001,-2.151443e-002,-8.130945e-002,9.205443e-001} -v={1,1,1,1,1,1} -a={1,1,1,1,1,1} -d={1,1,1,1,1,1}  --not_check_vel"));
 
 
-            foreach (double[] pt in pathPtList)
-            {
+            //foreach (double[] pt in pathPtList)
+            //{
 
-                double[] newPQ = new double[7] { pt[0] / 1000, pt[1] / 1000, pt[2] / 1000, 0, 0, 0, 1 };
-                string botCmd = "0&1&0&0&0&" + "moveJI --pq={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
-                EnqueueMessage(botCmd);
-                //_wabDataFroBotServerTransfer.msgOutQueue.Enqueue(botCmd);
+            //    double[] newPQ = new double[7] { pt[0] / 1000, pt[1] / 1000, pt[2] / 1000, 0, 0, 0, 1 };
+            //    string botCmd = "0&1&0&0&0&" + "moveJI --pq={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
+            //    EnqueueMessage(botCmd);
+            //    //_wabDataFroBotServerTransfer.msgOutQueue.Enqueue(botCmd);
 
-            }
-            foreach (double[] newPQ in pathPqList)
+            //}
+
+            //foreach (double[] newPQ in pathPqList)
+            for (int pq_i = 0; pq_i < 1; pq_i++)
             {
-                string botCmd = "0&1&0&0&0&" + "moveJI --pq={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
+                double[] newPQ = pathPqList[pq_i];
+                string botCmd = "0&1&0&0&0&" + "moveJI --pq={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + (newPQ[2]+0.02).ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "} --vel=0.05";
                 object syncObj = new object();
                 lock (syncObj)
                 {
                     EnqueueMessage(botCmd);
-                    //_wabDataFroBotServerTransfer.msgOutQueue.Enqueue(botCmd);
                 }
-
             }
+            
+            StringBuilder cmdStringBuilder = new StringBuilder();
+            foreach (double[] newPQ in pathPqList)
+            {
+                cmdStringBuilder.Append(newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + ";");
+            }
+            string cmdStr = "0&1&0&0&0&" + "FMovePath --pq={" + cmdStringBuilder.ToString() + "} --runtime=20";
+            EnqueueMessage(cmdStr);
+
+            for (int pq_i = 0; pq_i < 1; pq_i++)
+            {
+                double[] newPQ = pathPqList[pq_i];
+                string botCmd = "0&1&0&0&0&" + "movePQB --pqt={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + (newPQ[2] ).ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
+                object syncObj = new object();
+                lock (syncObj)
+                {
+                    EnqueueMessage(botCmd);
+                }
+            }
+
+            EnqueueMessage("0&1&0&0&0&" + "moveSPQ --which_func=7");
+
         }
 
         private void moveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -625,6 +652,12 @@ namespace StpViewer
             renderView.ExecuteCommand("MoveNode");
         }
 
+        /// <summary>
+        /// 对方向向量进行变换
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="direction"></param>
+        /// <returns></returns>
         Vector3 RotateDirVector(Matrix4 matrix, Vector3 direction)
         {
             Vector3 newDir = new Vector3();
@@ -632,6 +665,75 @@ namespace StpViewer
             newDir.Y = matrix.m[1, 0] * direction.X + matrix.m[1, 1] * direction.Y + matrix.m[1, 2] * direction.Z;
             newDir.Z = matrix.m[2, 0] * direction.X + matrix.m[2, 1] * direction.Y + matrix.m[2, 2] * direction.Z;
             return newDir;
+        }
+
+        /// <summary>
+        /// 位姿矩阵的逆
+        /// </summary>
+        /// <param name="mat"></param>
+        /// <returns></returns>
+        Matrix4 TransformReverse(Matrix4 mat)
+        {
+            Matrix4 newMat = new Matrix4();
+            newMat.m[0, 0] = mat.m[0, 0];
+            newMat.m[0, 1] = mat.m[1, 0];
+            newMat.m[0, 2] = mat.m[2, 0];
+            newMat.m[1, 0] = mat.m[0, 1];
+            newMat.m[1, 1] = mat.m[1, 1];
+            newMat.m[1, 2] = mat.m[2, 1];
+            newMat.m[2, 0] = mat.m[0, 2];
+            newMat.m[2, 1] = mat.m[1, 2];
+            newMat.m[2, 2] = mat.m[2, 2];
+
+            newMat.m[3, 0] = 0;
+            newMat.m[3, 1] = 0;
+            newMat.m[3, 2] = 0;
+            newMat.m[3, 3] = 1;
+
+            newMat.m[0, 3] = (mat.m[0, 3] * mat.m[0, 0] + mat.m[1, 3] * mat.m[1, 0] + mat.m[2, 3] * mat.m[2, 0]) * -1;
+            newMat.m[1, 3] = (mat.m[0, 3] * mat.m[0, 1] + mat.m[1, 3] * mat.m[1, 1] + mat.m[2, 3] * mat.m[2, 1]) * -1;
+            newMat.m[2, 3] = (mat.m[0, 3] * mat.m[0, 2] + mat.m[1, 3] * mat.m[1, 2] + mat.m[2, 3] * mat.m[2, 2]) * -1;
+
+            return newMat;
+
+        }
+
+        /// <summary>
+        /// 三个不共线的点构成的坐标系
+        /// </summary>
+        /// <param name="pt1">origin</param>
+        /// <param name="pt2">x</param>
+        /// <param name="pt3"></param>
+        /// <returns></returns>
+        Matrix4 MatrixByTriPoints(Vector3 pt1,Vector3 pt2,Vector3 pt3)
+        {
+            Vector3 x_dir = pt2 - pt1;
+            x_dir.Normalize();
+            Vector3 dir_1 = pt3 - pt1;
+            dir_1.Normalize();
+            Vector3 z_dir = x_dir.CrossProduct(dir_1);
+            Vector3 y_dir = x_dir.CrossProduct(z_dir);
+            MatrixBuilder builder = new MatrixBuilder();
+            return builder.ToWorldMatrix(new Coordinate3(pt1, x_dir, y_dir, z_dir));
+        }
+
+        /// <summary>
+        /// 通过三个点的原始位置和校准位置对工件坐标系进行标定
+        /// </summary>
+        /// <param name="pt1"></param>
+        /// <param name="pt2"></param>
+        /// <param name="pt3"></param>
+        /// <param name="pt1_cor"></param>
+        /// <param name="pt2_cor"></param>
+        /// <param name="pt3_cor"></param>
+        /// <returns></returns>
+        Matrix4 TransformCorrect(Vector3 pt1,Vector3 pt2,Vector3 pt3,Vector3 pt1_cor,Vector3 pt2_cor,Vector3 pt3_cor)
+        {
+            Matrix4 mat_1 = MatrixByTriPoints(pt1, pt2, pt3);
+            Matrix4 mat_2 = MatrixByTriPoints(pt1_cor, pt2_cor, pt3_cor);
+            Matrix4 mat_1_rev = TransformReverse(mat_1);
+            MatrixBuilder builder = new MatrixBuilder();
+            return builder.Multiply(mat_1_rev, mat_2);
         }
 
         /// <summary>
@@ -662,6 +764,7 @@ namespace StpViewer
         {
             return null;
         }
+
         Matrix4 QuaternionToTransform(float[] pq)
         {
 
@@ -704,6 +807,7 @@ namespace StpViewer
             //return GlobalInstance.MatrixBuilder.Multiply(trf, trf_1);
             return trf;
         }
+
         void UpdateModel(object source, System.Timers.ElapsedEventArgs e)
         {
             Matrix4 tr = robot_node.GetTransform();
@@ -715,6 +819,7 @@ namespace StpViewer
             renderView.RequestDraw();
 
         }
+
         void test()
         {
             System.Timers.Timer t = new System.Timers.Timer(100);//实例化Timer类，设置时间间隔
@@ -722,6 +827,7 @@ namespace StpViewer
             t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)
             t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件
         }
+
         void Method2(object source, System.Timers.ElapsedEventArgs e)
         {
             Console.WriteLine(DateTime.Now.ToString() + "_" + Thread.CurrentThread.ManagedThreadId.ToString());
