@@ -30,10 +30,8 @@ namespace StpViewer
         private List<float> step = new List<float>();
         private MessageFromBotServer mess = new MessageFromBotServer();
         //private string webSocketSerAddress = "127.0.0.1";
-        private string webSocketSerAddress = "192.168.1.10";
-        // private string webSocketSerAddress = "10.10.10.126";
-        //private string webSocketSerAddress = "10.10.10.133";
-        // private string webSocketSerAddress = "10.10.10.126";
+        private string webSocketSerAddress = "192.168.1.53";
+
         private string webSocketServerPort = "5866";
         GroupSceneNode robot_node = new GroupSceneNode();
         List<GroupSceneNode> partNodeList = new List<GroupSceneNode>();
@@ -82,6 +80,7 @@ namespace StpViewer
         }
 
         private bool m_PickPoint = false;
+
         private void OnRenderWindow_MouseClick(object sender, MouseEventArgs e)
         {
             if (!m_PickPoint)
@@ -102,6 +101,7 @@ namespace StpViewer
                 //renderView.ShowGeometry(shape, 100);
             }
         }
+
         private void OnChangeCursor(String commandId, String cursorHint)
         {
 
@@ -130,13 +130,13 @@ namespace StpViewer
             }
 
         }
+
         /// <summary>
         /// 相当于Unity的Update
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
         /// 
-
         void Update(object source, System.Timers.ElapsedEventArgs e)
         {
             if (motionFinished)//是否对碰撞做出反应，是否停止运动
@@ -187,11 +187,11 @@ namespace StpViewer
                         float[] stepData = new float[any_robot.partList.Count * 7];
                         for (int data_i = 0; data_i < stepData.Length; data_i++)
                         {
-                            stepData[data_i] = step[data_i];
+                            stepData[data_i] = step[step.Count-stepData.Length+ data_i];
                         }
                         MotionWithPQ(stepData);
-                        step.RemoveRange(0, any_robot.partList.Count * 7);
-                        
+                        //step.RemoveRange(0, any_robot.partList.Count * 7);
+                        step.Clear();
                     }
                     renderView.RequestDraw();
                 }
@@ -199,6 +199,7 @@ namespace StpViewer
             }
             
         }
+
         private static byte[] OperateBotCmd(string str)
         {
             Console.WriteLine("bot cmd:" + str);
@@ -246,20 +247,29 @@ namespace StpViewer
             }
 
         }
+
         private void StartSim(object sender, EventArgs e)
         {
             StartUpdateSimModel();
         }
+
         public void StartUpdateSimModel()
         {
             ifUpDateSimModelFromWebSocket = true;
-            if (_wabDataFroBotServerTransfer == null)
-            {
+            string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
+            _wabDataFroBotServerTransfer = new WebData(url);
+            _wabDataFroBotServerTransfer.OpenWebSocket();
+            //if (_wabDataFroBotServerTransfer == null)
+            //{
                 
-                string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
-                _wabDataFroBotServerTransfer = new WebData(url);
-                _wabDataFroBotServerTransfer.OpenWebSocket();
-            }
+            //    string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
+            //    _wabDataFroBotServerTransfer = new WebData(url);
+            //    _wabDataFroBotServerTransfer.OpenWebSocket();
+            //}
+            //else
+            //{
+            //    _wabDataFroBotServerTransfer.OpenWebSocket();
+            //}
            
         }
 
@@ -394,7 +404,7 @@ namespace StpViewer
                 node1 = renderView.ShowGeometry(a, 0);
                 node1.SetPickable(true);
                 //float[] oneGeoPq = new float[7] { 0.03f, 0.43f, 0.07f, 0, 0, 0, 1 };
-                float[] oneGeoPq = new float[7] { 0.03f, 0.46f, -0.005f, 0, 0, 0, 1 };
+                float[] oneGeoPq = new float[7] { 0.03f, 0.46f, 0.035f, 0, 0, 0, 1 };
                 MatrixBuilder mb = new MatrixBuilder();
                 Matrix4 mat1 = mb.Multiply(QuaternionToTransform(oneGeoPq),mb.MakeRotation(-90,new Vector3(1,0,0)));
                 node1.SetTransform(mat1);
@@ -419,7 +429,6 @@ namespace StpViewer
             //renderView.RequestDraw(EnumRenderHint.RH_LoadScene);
         }
 
-
         private void pickToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bool res = renderView.ExecuteCommand("Pick");
@@ -431,6 +440,7 @@ namespace StpViewer
         {
             SelectedShapeQuery context = new SelectedShapeQuery();
             renderView.QuerySelection(context);
+            
             TopoShape subShape = context.GetSubGeometry();
             SceneNode topoNode = context.GetSubNode();
 
@@ -478,6 +488,7 @@ namespace StpViewer
                         ptVecList.Add(ptVec);
                         norVecList.Add(normalVec);
                         pathPqList.Add(QuaternionFromTo(new Vector3(-1, 0, 0), normalVec, ptVec));
+                        ShowStatusMessage("path pts No: " + pathPqList.Count);
 
                         //LineNode tempLineNode = new LineNode();
                         //LineStyle lineStyle = new LineStyle();
@@ -623,7 +634,7 @@ namespace StpViewer
                     EnqueueMessage(botCmd);
                 }
             }
-            
+
             StringBuilder cmdStringBuilder = new StringBuilder();
             foreach (double[] newPQ in pathPqList)
             {
@@ -635,18 +646,21 @@ namespace StpViewer
             for (int pq_i = 0; pq_i < 1; pq_i++)
             {
                 double[] newPQ = pathPqList[pq_i];
-                string botCmd = "0&1&0&0&0&" + "movePQB --pqt={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + (newPQ[2] ).ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
+                string botCmd = "0&1&0&0&0&" + "movePQB --pqt={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + (newPQ[2]).ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
                 object syncObj = new object();
                 lock (syncObj)
                 {
                     EnqueueMessage(botCmd);
                 }
             }
-
             EnqueueMessage("0&1&0&0&0&" + "moveSPQ --which_func=7");
-
         }
 
+        void ShowStatusMessage(string mess)
+        {
+            toolStripStatusLabel1.Text = mess;
+            statusStrip1.Refresh();
+        }
         private void moveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             renderView.ExecuteCommand("MoveNode");
@@ -760,6 +774,7 @@ namespace StpViewer
                 return new double[7] { pt.X/1000, pt.Y/1000, pt.Z/1000, cross.X, cross.Y, cross.Z, q1 };
             }
         }
+
         float[] TransformToQuaternion(float[] transform)
         {
             return null;
@@ -894,6 +909,11 @@ namespace StpViewer
 
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            webSocketSerAddress = textBox4.Text;
+            ShowStatusMessage("IP: " + webSocketSerAddress);
+        }
     }
 
 
