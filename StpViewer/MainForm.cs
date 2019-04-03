@@ -30,12 +30,14 @@ namespace StpViewer
         private List<float> step = new List<float>();
         private MessageFromBotServer mess = new MessageFromBotServer();
         //private string webSocketSerAddress = "127.0.0.1";
-        private string webSocketSerAddress = "192.168.1.53";
+        private string webSocketSerAddress = "192.168.1.55";
 
         private string webSocketServerPort = "5866";
         GroupSceneNode robot_node = new GroupSceneNode();
         List<GroupSceneNode> partNodeList = new List<GroupSceneNode>();
         List<SceneNode> geoNodeList = new List<SceneNode>();
+        public bool robotLoadCompleted = true;
+        public string path = "";
 
         public MainForm()
         {
@@ -53,10 +55,11 @@ namespace StpViewer
             GlobalInstance.EventListener.OnSelectElementEvent += OnSelectElement;
             GlobalInstance.EventListener.OnSelectElementEvent += OnSelectionChanged;
 
-            System.Timers.Timer t = new System.Timers.Timer(10);//实例化Timer类，设置时间间隔
+            System.Timers.Timer t = new System.Timers.Timer(100);//实例化Timer类，设置时间间隔
             t.Elapsed += new System.Timers.ElapsedEventHandler(Update);//到达时间的时候执行事件
             t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)
             t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件
+            path= System.IO.Directory.GetCurrentDirectory(); 
         }
 
         private void OnSelectElement(SelectionChangeArgs args)
@@ -255,24 +258,22 @@ namespace StpViewer
 
         public void StartUpdateSimModel()
         {
-            ifUpDateSimModelFromWebSocket = true;
-            //string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
-            //_wabDataFroBotServerTransfer = new WebData(url);
-            //_wabDataFroBotServerTransfer.OpenWebSocket();
-
-
+            
             if (_wabDataFroBotServerTransfer == null)
             {
-
-                string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
-                _wabDataFroBotServerTransfer = new WebData(url);
-                _wabDataFroBotServerTransfer.OpenWebSocket();
+                BuildWS();
             }
-            //else
-            //{
-            //    _wabDataFroBotServerTransfer.OpenWebSocket();
-            //}
-
+            else
+            {
+                _wabDataFroBotServerTransfer._webSocket.Connect();
+            }
+        }
+        public void BuildWS()
+        {
+            ifUpDateSimModelFromWebSocket = true;
+            string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
+            _wabDataFroBotServerTransfer = new WebData(url);
+            _wabDataFroBotServerTransfer.OpenWebSocket();
         }
 
         public void MotionWithPQ(List<float> pqList)
@@ -294,19 +295,23 @@ namespace StpViewer
 
         public void MotionWithPQ(float[] pqList)
         {
-            if (pqList.Length > 6)
+            if (robotLoadCompleted)
             {
-                for (int part_i = 1; part_i < any_robot.partList.Count; part_i++)
+                if (pqList.Length > 6)
                 {
-                    float[] pqa = new float[7];
-                    for (int i = 0; i < 7; i++)
+                    for (int part_i = 1; part_i < any_robot.partList.Count; part_i++)
                     {
-                        pqa[i] = pqList[i + part_i * 7];
+                        float[] pqa = new float[7];
+                        for (int i = 0; i < 7; i++)
+                        {
+                            pqa[i] = pqList[i + part_i * 7];
+                        }
+                        partNodeList[part_i].SetTransform(QuaternionToTransform(pqa));
                     }
-                    partNodeList[part_i].SetTransform(QuaternionToTransform(pqa));
                 }
+                motionFinished = true;
             }
-            motionFinished = true;
+           
         }
 
         void OnSelectionChanged(SelectionChangeArgs args)
@@ -345,6 +350,7 @@ namespace StpViewer
                 any_robot.LoadRobot_Aris(dlg.FileName, true);
                 
             }
+            robotLoadCompleted = false;
             ShowAnyRobot();
         }
 
@@ -359,8 +365,17 @@ namespace StpViewer
                 //Console.Write(onePartNode.GetTransform().GetTranslation().ToString());
                 for (int geo_i = 0; geo_i < any_robot.partList[part_i].geometryPathList.Count; geo_i++)
                 {
-
-                    TopoShape geo = GlobalInstance.BrepTools.LoadFile(new AnyCAD.Platform.Path(any_robot.partList[part_i].geometryPathList[geo_i]));
+                    string relPath = any_robot.partList[part_i].geometryPathList[geo_i];
+                    string absPath = relPath;
+                    if (relPath.Contains(":"))
+                    {
+                        absPath = relPath;
+                    }
+                    else
+                    {
+                        absPath = path + relPath;
+                    }
+                    TopoShape geo = GlobalInstance.BrepTools.LoadFile(new AnyCAD.Platform.Path(absPath));
                     SceneNode oneGeoNode = renderView.ShowGeometry(geo, part_i);
                     float[] oneGeoPq = new float[7];
                     for (int i = 0; i < 7; i++)
@@ -386,6 +401,7 @@ namespace StpViewer
             renderView.SceneManager.AddNode(robot_node);
             robot_node.SetPickable(false);
             renderView.RequestDraw();
+            robotLoadCompleted = true;
             for (int k = 0; k < partNodeList.Count; k++)
             {
                 Console.WriteLine("part" + k + partNodeList[k].GetTransform().GetTranslation().ToString());
@@ -586,11 +602,7 @@ namespace StpViewer
 
         private void CMD_textBox_Leave(object sender, EventArgs e)
         {
-            string cmdStr = this.CMD_textBox.Text;
-            EnqueueMessage("0&1&0&0&0&" + cmdStr + "\n");
-            //_wabDataFroBotServerTransfer.msgOutQueue.Enqueue();
-            //Console.WriteLine(_wabDataFroBotServerTransfer.msgOutQueue.Count+":"+ cmdStr);
-
+            
         }
 
         private void EnqueueMessage(string mess)
@@ -663,6 +675,7 @@ namespace StpViewer
             toolStripStatusLabel1.Text = mess;
             statusStrip1.Refresh();
         }
+
         private void moveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             renderView.ExecuteCommand("MoveNode");
@@ -915,6 +928,14 @@ namespace StpViewer
         {
             webSocketSerAddress = textBox4.Text;
             ShowStatusMessage("IP: " + webSocketSerAddress);
+            BuildWS();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string cmdStr = this.CMD_textBox.Text;
+            EnqueueMessage("0&1&0&0&0&" + cmdStr + "\n");
+
         }
     }
 

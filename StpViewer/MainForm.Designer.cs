@@ -66,6 +66,7 @@
             this.toolStripMenuItem23 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem24 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem25 = new System.Windows.Forms.ToolStripMenuItem();
+            this.button4 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -82,6 +83,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.button4);
             this.splitContainer1.Panel1.Controls.Add(this.button3);
             this.splitContainer1.Panel1.Controls.Add(this.textBox4);
             this.splitContainer1.Panel1.Controls.Add(this.label4);
@@ -397,6 +399,16 @@
             this.toolStripMenuItem25.Name = "toolStripMenuItem25";
             this.toolStripMenuItem25.Size = new System.Drawing.Size(12, 38);
             // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(276, 757);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(138, 46);
+            this.button4.TabIndex = 15;
+            this.button4.Text = "指令确认";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
@@ -462,6 +474,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem23;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem24;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem25;
+        private System.Windows.Forms.Button button4;
     }
 }
 

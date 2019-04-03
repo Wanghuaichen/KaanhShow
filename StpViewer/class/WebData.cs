@@ -15,7 +15,7 @@ public class WebData
     /// Saved WebSocket instance  
     /// </summary>  
     public WebSocket _webSocket;
-
+    public bool isConnected { get { return _webSocket.ReadyState == WebSocketState.Open; } }
     
     private Queue<string> _msgQueue = new Queue<string>();
     private Queue<byte[]> _binQueue = new Queue<byte[]>();
