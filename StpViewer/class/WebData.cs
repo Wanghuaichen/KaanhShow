@@ -33,63 +33,65 @@ public class WebData
 
     public void OpenWebSocket()
     {
-        _webSocket = new WebSocket(address);
-        _webSocket.OnError += (sender, e) => {
-            Console.Write("OnError:" + e.Message);
+        //_webSocket = new WebSocket(address);
+        //_webSocket.OnError += (sender, e) => {
+        //    Console.Write("OnError:" + e.Message);
 
-        };
-        _webSocket.OnClose += (sender, e) => {
-            Console.Write("Closed because:" + e.Reason);
+        //};
+        //_webSocket.OnClose += (sender, e) => {
+        //    Console.Write("Closed because:" + e.Reason);
 
-        };
-        _webSocket.OnOpen += (sender, e) =>
-        {
-            Console.Write("open");
-        };
-        _webSocket.OnMessage += (sender, e) =>
-        {
-            if (e.IsText)
-            {
-                _msgQueue.Enqueue(e.Data);
-            }
-            else if (e.IsBinary)
-            {
-                _binQueue.Enqueue(e.RawData);
-            }
-        };
-        _webSocket.Connect();
-
-        //if (_webSocket == null)
+        //};
+        //_webSocket.OnOpen += (sender, e) =>
         //{
-        //    // Create the WebSocket instance  
-        //    _webSocket = new WebSocket(address);
-        //   _webSocket.OnError += (sender, e) => {
-        //       Console.Write("OnError:"+ e.Message);
-   
-        //    };
-        //    _webSocket.OnClose += (sender, e) => {
-        //        Console.Write("Closed because:"+e.Reason);
-
-        //    };
-        //    _webSocket.OnOpen += (sender, e) =>
+        //    Console.Write("open");
+        //};
+        //_webSocket.OnMessage += (sender, e) =>
+        //{
+        //    if (e.IsText)
         //    {
-        //        Console.Write("open");
-        //    };
-        //    _webSocket.OnMessage += (sender, e) =>
+        //        _msgQueue.Enqueue(e.Data);
+        //    }
+        //    else if (e.IsBinary)
         //    {
-        //        if (e.IsText)
-        //        {
-        //            _msgQueue.Enqueue(e.Data);
-        //        }
-        //        else if (e.IsBinary)
-        //        {
-        //            _binQueue.Enqueue(e.RawData);
-        //        }
-        //    };
-        //    _webSocket.Connect();
+        //        _binQueue.Enqueue(e.RawData);
+        //    }
+        //};
+        //_webSocket.Connect();
 
-          
-        //}
+        if (_webSocket == null)
+        {
+            // Create the WebSocket instance  
+            _webSocket = new WebSocket(address);
+            _webSocket.OnError += (sender, e) =>
+            {
+                Console.Write("OnError:" + e.Message);
+
+            };
+            _webSocket.OnClose += (sender, e) =>
+            {
+                Console.Write("Closed because:" + e.Reason);
+
+            };
+            _webSocket.OnOpen += (sender, e) =>
+            {
+                Console.Write("open");
+            };
+            _webSocket.OnMessage += (sender, e) =>
+            {
+                if (e.IsText)
+                {
+                    _msgQueue.Enqueue(e.Data);
+                }
+                else if (e.IsBinary)
+                {
+                    _binQueue.Enqueue(e.RawData);
+                }
+            };
+            _webSocket.Connect();
+
+
+        }
         //else
         //{
         //    _webSocket.Connect();

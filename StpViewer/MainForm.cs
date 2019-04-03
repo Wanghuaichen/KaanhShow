@@ -256,21 +256,23 @@ namespace StpViewer
         public void StartUpdateSimModel()
         {
             ifUpDateSimModelFromWebSocket = true;
-            string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
-            _wabDataFroBotServerTransfer = new WebData(url);
-            _wabDataFroBotServerTransfer.OpenWebSocket();
-            //if (_wabDataFroBotServerTransfer == null)
-            //{
-                
-            //    string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
-            //    _wabDataFroBotServerTransfer = new WebData(url);
-            //    _wabDataFroBotServerTransfer.OpenWebSocket();
-            //}
+            //string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
+            //_wabDataFroBotServerTransfer = new WebData(url);
+            //_wabDataFroBotServerTransfer.OpenWebSocket();
+
+
+            if (_wabDataFroBotServerTransfer == null)
+            {
+
+                string url = "ws://" + webSocketSerAddress + ":" + webSocketServerPort;
+                _wabDataFroBotServerTransfer = new WebData(url);
+                _wabDataFroBotServerTransfer.OpenWebSocket();
+            }
             //else
             //{
             //    _wabDataFroBotServerTransfer.OpenWebSocket();
             //}
-           
+
         }
 
         public void MotionWithPQ(List<float> pqList)
@@ -404,7 +406,7 @@ namespace StpViewer
                 node1 = renderView.ShowGeometry(a, 0);
                 node1.SetPickable(true);
                 //float[] oneGeoPq = new float[7] { 0.03f, 0.43f, 0.07f, 0, 0, 0, 1 };
-                float[] oneGeoPq = new float[7] { 0.03f, 0.46f, 0.035f, 0, 0, 0, 1 };
+                float[] oneGeoPq = new float[7] { 0.03f, 0.46f, -0.018f, 0, 0, 0, 1 };
                 MatrixBuilder mb = new MatrixBuilder();
                 Matrix4 mat1 = mb.Multiply(QuaternionToTransform(oneGeoPq),mb.MakeRotation(-90,new Vector3(1,0,0)));
                 node1.SetTransform(mat1);
@@ -473,7 +475,7 @@ namespace StpViewer
                 double stepV = 10;
                 int stepNoU = (int)(offSetU / stepU);
                 int stepNoV = (int)(offSetV / stepV);
-                for (int v_i = 3; v_i < stepNoV-3; v_i++)
+                for (int v_i = 3; v_i < stepNoV-5; v_i++)
                 {
                     for (int u_i = 0; u_i < stepNoU; u_i++)
                     {
@@ -640,7 +642,7 @@ namespace StpViewer
             {
                 cmdStringBuilder.Append(newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + ";");
             }
-            string cmdStr = "0&1&0&0&0&" + "FMovePath --pq={" + cmdStringBuilder.ToString() + "} --runtime=20";
+            string cmdStr = "0&1&0&0&0&" + "FMovePath --pq={" + cmdStringBuilder.ToString() + "} --runtime=8";
             EnqueueMessage(cmdStr);
 
             for (int pq_i = 0; pq_i < 1; pq_i++)
