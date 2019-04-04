@@ -1,12 +1,13 @@
 ---------AnyCAD Graphics Platform-----------
 --------------www.anycad.net----------------
-INFO>> E:\Depot\sdk.net.pro.2\bin\x64\Release
+INFO>> E:\2018\Show\AnyCAD\KaanhShow\bin\x64\release
 INFO>> Version: R2017.RTM
 WARN>> No license information found!
 INFO>> Loading Plugins:
-INFO>> Plugin: E:/Depot/sdk.net.pro.2/bin/x64/Release/AnyVizGL.dll
-INFO>> OpenGL Version: 4.0.0 - Build 10.18.10.4358
-INFO>> Plugin: E:/Depot/sdk.net.pro.2/bin/x64/Release/AnyExchangeCore.dll
-INFO>> Plugin: E:/Depot/sdk.net.pro.2/bin/x64/Release/AnyExchangeBase.dll
-INFO>> Plugin: E:/Depot/sdk.net.pro.2/bin/x64/Release/AnyExchangeDXF.dll
+INFO>> Plugin: E:/2018/Show/AnyCAD/KaanhShow/bin/x64/release/AnyVizGL.dll
+INFO>> OpenGL Version: 4.4.0 - Build 20.19.15.4835
+INFO>> Plugin: E:/2018/Show/AnyCAD/KaanhShow/bin/x64/release/AnyExchangeCore.dll
+INFO>> Plugin: E:/2018/Show/AnyCAD/KaanhShow/bin/x64/release/AnyExchangeBase.dll
+INFO>> Plugin: E:/2018/Show/AnyCAD/KaanhShow/bin/x64/release/AnyExchangeDXF.dll
 INFO>> >>Pick
+INFO>> >>ShadeWithEdgeMode

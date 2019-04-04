@@ -139,7 +139,7 @@ namespace StpViewer
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        /// 
+        ///
         void Update(object source, System.Timers.ElapsedEventArgs e)
         {
             if (motionFinished)//是否对碰撞做出反应，是否停止运动
@@ -268,6 +268,7 @@ namespace StpViewer
                 _wabDataFroBotServerTransfer._webSocket.Connect();
             }
         }
+
         public void BuildWS()
         {
             ifUpDateSimModelFromWebSocket = true;
