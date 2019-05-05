@@ -29,8 +29,8 @@ namespace StpViewer
         private WebData _wabDataFroBotServerTransfer;
         private List<float> step = new List<float>();
         private MessageFromBotServer mess = new MessageFromBotServer();
-        //private string webSocketSerAddress = "127.0.0.1";
-        private string webSocketSerAddress = "192.168.1.55";
+        private string webSocketSerAddress = "127.0.0.1";
+        //private string webSocketSerAddress = "192.168.1.55";
 
         private string webSocketServerPort = "5866";
         GroupSceneNode robot_node = new GroupSceneNode();
@@ -59,7 +59,9 @@ namespace StpViewer
             t.Elapsed += new System.Timers.ElapsedEventHandler(Update);//到达时间的时候执行事件
             t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)
             t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件
-            path= System.IO.Directory.GetCurrentDirectory(); 
+            path= System.IO.Directory.GetCurrentDirectory();
+
+            //webBrowser1.Navigate("http://120.27.231.59:809/Configure.html");
         }
 
         private void OnSelectElement(SelectionChangeArgs args)
@@ -423,7 +425,7 @@ namespace StpViewer
                 node1 = renderView.ShowGeometry(a, 0);
                 node1.SetPickable(true);
                 //float[] oneGeoPq = new float[7] { 0.03f, 0.43f, 0.07f, 0, 0, 0, 1 };
-                float[] oneGeoPq = new float[7] { 0.03f, 0.46f, -0.018f, 0, 0, 0, 1 };
+                float[] oneGeoPq = new float[7] { 0.03f, 0.46f, 0.018f, 0, 0, 0, 1 };
                 MatrixBuilder mb = new MatrixBuilder();
                 Matrix4 mat1 = mb.Multiply(QuaternionToTransform(oneGeoPq),mb.MakeRotation(-90,new Vector3(1,0,0)));
                 node1.SetTransform(mat1);
@@ -639,7 +641,7 @@ namespace StpViewer
             //}
 
             //foreach (double[] newPQ in pathPqList)
-            for (int pq_i = 0; pq_i < 1; pq_i++)
+            for (int pq_i = 0; pq_i < pathPqList.Count; pq_i++)
             {
                 double[] newPQ = pathPqList[pq_i];
                 string botCmd = "0&1&0&0&0&" + "moveJI --pq={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + (newPQ[2]+0.02).ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "} --vel=0.05";
@@ -650,25 +652,25 @@ namespace StpViewer
                 }
             }
 
-            StringBuilder cmdStringBuilder = new StringBuilder();
-            foreach (double[] newPQ in pathPqList)
-            {
-                cmdStringBuilder.Append(newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + ";");
-            }
-            string cmdStr = "0&1&0&0&0&" + "FMovePath --pq={" + cmdStringBuilder.ToString() + "} --runtime=8";
-            EnqueueMessage(cmdStr);
+            //StringBuilder cmdStringBuilder = new StringBuilder();
+            //foreach (double[] newPQ in pathPqList)
+            //{
+            //    cmdStringBuilder.Append(newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + newPQ[2].ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + ";");
+            //}
+            //string cmdStr = "0&1&0&0&0&" + "FMovePath --pq={" + cmdStringBuilder.ToString() + "} --runtime=8";
+            //EnqueueMessage(cmdStr);
 
-            for (int pq_i = 0; pq_i < 1; pq_i++)
-            {
-                double[] newPQ = pathPqList[pq_i];
-                string botCmd = "0&1&0&0&0&" + "movePQB --pqt={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + (newPQ[2]).ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
-                object syncObj = new object();
-                lock (syncObj)
-                {
-                    EnqueueMessage(botCmd);
-                }
-            }
-            EnqueueMessage("0&1&0&0&0&" + "moveSPQ --which_func=7");
+            //for (int pq_i = 0; pq_i < 1; pq_i++)
+            //{
+            //    double[] newPQ = pathPqList[pq_i];
+            //    string botCmd = "0&1&0&0&0&" + "movePQB --pqt={" + newPQ[0].ToString("e") + "," + newPQ[1].ToString("e") + "," + (newPQ[2]).ToString("e") + "," + newPQ[3].ToString("e") + "," + newPQ[4].ToString("e") + "," + newPQ[5].ToString("e") + "," + newPQ[6].ToString("e") + "}";
+            //    object syncObj = new object();
+            //    lock (syncObj)
+            //    {
+            //        EnqueueMessage(botCmd);
+            //    }
+            //}
+            //EnqueueMessage("0&1&0&0&0&" + "moveSPQ --which_func=7");
         }
 
         void ShowStatusMessage(string mess)

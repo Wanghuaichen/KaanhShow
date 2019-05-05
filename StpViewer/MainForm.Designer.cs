@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.webBrowser1 = new System.Windows.Forms.WebBrowser();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.textBox4 = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.textBox3 = new System.Windows.Forms.TextBox();
@@ -42,8 +46,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.CMD_textBox = new System.Windows.Forms.TextBox();
             this.treeViewStp = new System.Windows.Forms.TreeView();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,7 +68,6 @@
             this.toolStripMenuItem23 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem24 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem25 = new System.Windows.Forms.ToolStripMenuItem();
-            this.button4 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -83,6 +84,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.webBrowser1);
             this.splitContainer1.Panel1.Controls.Add(this.button4);
             this.splitContainer1.Panel1.Controls.Add(this.button3);
             this.splitContainer1.Panel1.Controls.Add(this.textBox4);
@@ -102,6 +104,41 @@
             this.splitContainer1.SplitterDistance = 478;
             this.splitContainer1.SplitterWidth = 8;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // webBrowser1
+            // 
+            this.webBrowser1.Location = new System.Drawing.Point(12, 416);
+            this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser1.Name = "webBrowser1";
+            this.webBrowser1.Size = new System.Drawing.Size(483, 354);
+            this.webBrowser1.TabIndex = 16;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(276, 757);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(138, 46);
+            this.button4.TabIndex = 15;
+            this.button4.Text = "指令确认";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(276, 79);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(107, 42);
+            this.button3.TabIndex = 14;
+            this.button3.Text = "确认IP";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(44, 79);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(217, 35);
+            this.textBox4.TabIndex = 13;
             // 
             // label4
             // 
@@ -216,23 +253,6 @@
             this.treeViewStp.TabIndex = 0;
             this.treeViewStp.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewStp_AfterSelect);
             // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(44, 79);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(217, 35);
-            this.textBox4.TabIndex = 13;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(276, 79);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(107, 42);
-            this.button3.TabIndex = 14;
-            this.button3.Text = "确认IP";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
             // menuStrip2
             // 
             this.menuStrip2.ImageScalingSize = new System.Drawing.Size(32, 32);
@@ -262,7 +282,7 @@
             this.toolStripMenuItem14,
             this.toolStripMenuItem15});
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(74, 38);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(74, 35);
             this.toolStripMenuItem2.Text = "开始";
             // 
             // toolStripMenuItem7
@@ -273,81 +293,81 @@
             this.toolStripMenuItem10,
             this.toolStripMenuItem11});
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(232, 38);
             this.toolStripMenuItem7.Text = "导入机器人";
             // 
             // toolStripMenuItem8
             // 
             this.toolStripMenuItem8.Name = "toolStripMenuItem8";
-            this.toolStripMenuItem8.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(234, 38);
             this.toolStripMenuItem8.Text = "Rokae XB4";
             // 
             // toolStripMenuItem9
             // 
             this.toolStripMenuItem9.Name = "toolStripMenuItem9";
-            this.toolStripMenuItem9.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem9.Size = new System.Drawing.Size(234, 38);
             this.toolStripMenuItem9.Text = "Stewart";
             // 
             // toolStripMenuItem10
             // 
             this.toolStripMenuItem10.Name = "toolStripMenuItem10";
-            this.toolStripMenuItem10.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem10.Size = new System.Drawing.Size(234, 38);
             this.toolStripMenuItem10.Text = "UR";
             // 
             // toolStripMenuItem11
             // 
             this.toolStripMenuItem11.Name = "toolStripMenuItem11";
-            this.toolStripMenuItem11.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem11.Size = new System.Drawing.Size(234, 38);
             this.toolStripMenuItem11.Text = "自定义";
             this.toolStripMenuItem11.Click += new System.EventHandler(this.OpenRobotXml);
             // 
             // toolStripMenuItem12
             // 
             this.toolStripMenuItem12.Name = "toolStripMenuItem12";
-            this.toolStripMenuItem12.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem12.Size = new System.Drawing.Size(232, 38);
             this.toolStripMenuItem12.Text = "导入工件";
             this.toolStripMenuItem12.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(265, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(229, 6);
             // 
             // toolStripMenuItem13
             // 
             this.toolStripMenuItem13.Name = "toolStripMenuItem13";
-            this.toolStripMenuItem13.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem13.Size = new System.Drawing.Size(232, 38);
             this.toolStripMenuItem13.Text = "分析";
             this.toolStripMenuItem13.Click += new System.EventHandler(this.queryToolStripMenuItem_Click);
             // 
             // toolStripMenuItem14
             // 
             this.toolStripMenuItem14.Name = "toolStripMenuItem14";
-            this.toolStripMenuItem14.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem14.Size = new System.Drawing.Size(232, 38);
             this.toolStripMenuItem14.Text = "保存图片";
             // 
             // toolStripMenuItem15
             // 
             this.toolStripMenuItem15.Name = "toolStripMenuItem15";
-            this.toolStripMenuItem15.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem15.Size = new System.Drawing.Size(232, 38);
             this.toolStripMenuItem15.Text = "保存动画";
             // 
             // toolStripMenuItem16
             // 
             this.toolStripMenuItem16.Name = "toolStripMenuItem16";
-            this.toolStripMenuItem16.Size = new System.Drawing.Size(74, 38);
+            this.toolStripMenuItem16.Size = new System.Drawing.Size(74, 35);
             this.toolStripMenuItem16.Text = "编辑";
             // 
             // toolStripMenuItem17
             // 
             this.toolStripMenuItem17.Name = "toolStripMenuItem17";
-            this.toolStripMenuItem17.Size = new System.Drawing.Size(74, 38);
+            this.toolStripMenuItem17.Size = new System.Drawing.Size(74, 35);
             this.toolStripMenuItem17.Text = "程序";
             // 
             // toolStripMenuItem18
             // 
             this.toolStripMenuItem18.Name = "toolStripMenuItem18";
-            this.toolStripMenuItem18.Size = new System.Drawing.Size(74, 38);
+            this.toolStripMenuItem18.Size = new System.Drawing.Size(74, 35);
             this.toolStripMenuItem18.Text = "查看";
             // 
             // toolStripMenuItem19
@@ -356,20 +376,20 @@
             this.toolStripMenuItem20,
             this.toolStripMenuItem21});
             this.toolStripMenuItem19.Name = "toolStripMenuItem19";
-            this.toolStripMenuItem19.Size = new System.Drawing.Size(74, 38);
+            this.toolStripMenuItem19.Size = new System.Drawing.Size(74, 35);
             this.toolStripMenuItem19.Text = "工具";
             // 
             // toolStripMenuItem20
             // 
             this.toolStripMenuItem20.Name = "toolStripMenuItem20";
-            this.toolStripMenuItem20.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem20.Size = new System.Drawing.Size(160, 38);
             this.toolStripMenuItem20.Text = "移动";
             this.toolStripMenuItem20.Click += new System.EventHandler(this.moveToolStripMenuItem_Click);
             // 
             // toolStripMenuItem21
             // 
             this.toolStripMenuItem21.Name = "toolStripMenuItem21";
-            this.toolStripMenuItem21.Size = new System.Drawing.Size(268, 38);
+            this.toolStripMenuItem21.Size = new System.Drawing.Size(160, 38);
             this.toolStripMenuItem21.Text = "选取";
             this.toolStripMenuItem21.Click += new System.EventHandler(this.pickToolStripMenuItem_Click);
             // 
@@ -378,7 +398,7 @@
             this.toolStripMenuItem22.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem23});
             this.toolStripMenuItem22.Name = "toolStripMenuItem22";
-            this.toolStripMenuItem22.Size = new System.Drawing.Size(74, 38);
+            this.toolStripMenuItem22.Size = new System.Drawing.Size(74, 35);
             this.toolStripMenuItem22.Text = "连接";
             // 
             // toolStripMenuItem23
@@ -391,23 +411,13 @@
             // toolStripMenuItem24
             // 
             this.toolStripMenuItem24.Name = "toolStripMenuItem24";
-            this.toolStripMenuItem24.Size = new System.Drawing.Size(74, 38);
+            this.toolStripMenuItem24.Size = new System.Drawing.Size(74, 35);
             this.toolStripMenuItem24.Text = "帮助";
             // 
             // toolStripMenuItem25
             // 
             this.toolStripMenuItem25.Name = "toolStripMenuItem25";
-            this.toolStripMenuItem25.Size = new System.Drawing.Size(12, 38);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(276, 757);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(138, 46);
-            this.button4.TabIndex = 15;
-            this.button4.Text = "指令确认";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.toolStripMenuItem25.Size = new System.Drawing.Size(12, 35);
             // 
             // MainForm
             // 
@@ -475,6 +485,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem24;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem25;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.WebBrowser webBrowser1;
     }
 }
 
